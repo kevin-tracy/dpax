@@ -49,9 +49,9 @@ proximityMRP_grad = grad(proximityMRP, argnums = (0,1,2,3,4,5,6,7))
 (g_R1, g_L1, g_r1, g_p1,
  g_R2, g_L2, g_r2, g_p2) = proximityMRP_grad(R1,L1,r1,p1,R2,L2,r2,p2)
 
-# check these gradients 
+# check these gradients with finite diff
 from jax.test_util import check_grads
-print(check_grads(proximityMRP,  (R1,L1,r1,p1,R2,L2,r2,p2), order=1))
+check_grads(proximityMRP,  (R1,L1,r1,p1,R2,L2,r2,p2), order=1)
 ```
 We can also `vmap` over these functions:
 
@@ -78,7 +78,7 @@ batch_proximity = jax.vmap(proximityMRP, in_axes = (0,0,0,0,0,0,0,0))
 phis = batch_proximity(R1s, L1s, r1s, p1s, R2s, L2s, r2s, p2s)
 
 # vmap over proximityMRP_grad
-batch_proximity_grad = jax.vmap(proximityMRP_grad),in_axes = (0,0,0,0,0,0,0,0))
+batch_proximity_grad = jax.vmap(proximityMRP_grad, in_axes = (0,0,0,0,0,0,0,0))
 
 (g_R1s, g_L1s, g_r1s, g_p1s,
  g_R2s, g_L2s, g_r2s, g_p2s) = batch_proximity_grad(R1s, L1s, r1s, p1s, R2s, L2s, r2s, p2s)
