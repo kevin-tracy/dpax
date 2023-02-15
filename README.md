@@ -1,6 +1,21 @@
 # diffpills_jax
 Differentiable collision detection for capsules in JAX.
 
+## Installation
+
+To install directly from github using `pip`:
+
+```bash
+$ pip install git+https://github.com/kevin-tracy/diffpills_jax
+```
+
+Alternatively, to install from source:
+
+```bash
+$ python setup.py install
+```
+
+## Basic Usage
 
 ```python
 import jax
