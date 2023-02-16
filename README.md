@@ -15,14 +15,89 @@ Alternatively, to install from source:
 $ python setup.py install
 ```
 
-## Basic Usage
+## Basic Usage 
+This package allows for proximity calculations between capsules that can be described in one of two different ways. The first way parametrizes the capsule by its endpoints and radius, and the second way parametrizes the capsule with a position and attitude (modified rodrigues parameter). 
+
+### Endpoints
+
+You can specify a capsule by its endpoints, and call `proximity` on this description as follows:
+```python
+import jax
+import jax.numpy as jnp 
+from jax import jit, grad, vmap 
+
+import diffpills_jax
+from diffpills_jax.endpoints import proximity
+
+"""
+Capsules can be described by their endpoints a, b,
+and a radius R. 
+
+         ---------------       -
+       /                 \     |  
+      /                   \    |
+     (   . a          b .  )   | R
+      \                   /    |
+       \                 /     |
+         ---------------       -
+"""         
+# capsule 1 
+R1 = 1.4
+a1 = jnp.array([2.3337867, -4.107256, 1.7219955])
+b1 = jnp.array([1.8662131, -2.4927437, 1.0780045])
+
+# capsule 2 
+R2 = 0.7
+a2 = jnp.array([-2.2803261, -3.7882166, -4.4897776])
+b2 = jnp.array([-1.9196738, -4.811784, -4.3102226])
+
+# calculate proximity 
+phi = proximity(R1,a1,b1,R2,a2,b2)
+
+# calculate proximity gradients
+proximity_grad = grad(proximity, argnums = (0,1,2,3,4,5))
+(dphi_dR1, dphi_da1, dphi_db1,
+ dphi_dR2, dphi_da2, dphi_db2) = proximity_grad(R1,a1,b1,R2,a2,b2)
+
+# check these gradients with finite diff
+from jax.test_util import check_grads
+check_grads(proximity,  (R1,a1,b1,R2,a2,b2), order=1, atol = 5e-2)
+```
+We can also `vmap` over these two functions. 
+```python 
+# random keys 
+key1 = jax.random.PRNGKey(0)
+key2, key3 = jax.random.split(key1)
+key4, key5 = jax.random.split(key2)
+key6, key7 = jax.random.split(key3)
+
+N_capsules = 40
+a1s = jax.random.normal(key1, (N_capsules, 3))
+b1s = jax.random.normal(key2, (N_capsules, 3))
+a2s = jax.random.normal(key3, (N_capsules, 3))
+b2s = jax.random.normal(key4, (N_capsules, 3))
+R1s = jax.random.normal(key5, (N_capsules,))
+R2s = jax.random.normal(key7, (N_capsules,))
+
+# vmap over proxmity
+batch_proximity = jax.vmap(proximity, in_axes = (0,0,0,0,0,0))
+phis = batch_proximity(R1s,a1s,b1s,R2s,a2s,b2s)
+
+# vmap over proximit_grad
+batch_proximity_grad = jax.vmap(proximity_grad, in_axes = (0,0,0,0,0,0))
+(g_R1s, g_a1s, g_b1s,
+ g_R2s, g_a2s, g_b2) = batch_proximity_grad(R1s,a1s,b1s,R2s,a2s,b2s)
+```
+
+### Position and Attitude
 
 ```python
 import jax
 import jax.numpy as jnp 
 from jax import jit, grad, vmap 
 
-import diffpills_jax.diffpills as dp 
+import diffpills_jax
+from diffpills_jax.mrp import proximityMRP
 
 """
 Each capsule is described with:
