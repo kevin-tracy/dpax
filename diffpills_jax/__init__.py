@@ -1,1 +1,3 @@
-from . import diffpills
+from . import endpoints
+from . import mrp
+
