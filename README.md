@@ -1,5 +1,8 @@
 # diffpills_jax
-Differentiable collision detection for capsules in JAX.
+Differentiable collision detection for capsules in JAX. This is based on the following [arXiv paper](https://arxiv.org/abs/2207.00202), and existing Julia package [DiffPills.jl](https://github.com/kevin-tracy/DiffPills.jl).
+
+For general purpose differentiable collision detection between convex primitives, see this follow on work: [arXiv paper](https://arxiv.org/abs/2207.00669), and existing Julia package [DifferentiableCollisions.jl](https://github.com/kevin-tracy/DifferentiableCollisions.jl).
+
 
 ## Installation
 
