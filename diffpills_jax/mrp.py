@@ -5,7 +5,7 @@ from jax import custom_jvp
 from jax import jvp 
 import jax.numpy as jnp 
 
-from qp_utils import *
+from diffpills_jax.qp_utils import *
 
 # direction cosine matrix from mrp
 def dcm_from_mrp(p):
