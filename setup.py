@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 root_path = os.path.dirname(__file__)
-version_path = os.path.join(root_path, 'diffpills_jax', 'version.py')
+version_path = os.path.join(root_path, 'dpax', 'version.py')
 
 _dct = {}
 with open(version_path) as f:
@@ -18,12 +18,12 @@ if os.path.exists(req_path):
     install_requires = [line.strip() for line in fp]
 
 setup(
-    name='diffpills_jax',
+    name='dpax',
     version=__version__,
     description='Differentiable collision detection for capsules with JAX.',
     author='Kevin Tracy',
     author_email='ktracy@cmu.edu',
-    url='https://github.com/kevin-tracy/diffpills_jax',
+    url='https://github.com/kevin-tracy/dpax',
     license='MIT',
     packages=find_packages(),
     package_data={},

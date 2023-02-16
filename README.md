@@ -9,7 +9,7 @@ For general purpose differentiable collision detection between convex primitives
 To install directly from github using `pip`:
 
 ```bash
-$ pip install git+https://github.com/kevin-tracy/diffpills_jax
+$ pip install git+https://github.com/kevin-tracy/dpax
 ```
 
 Alternatively, to install from source:
@@ -29,8 +29,8 @@ import jax
 import jax.numpy as jnp 
 from jax import jit, grad, vmap 
 
-import diffpills_jax
-from diffpills_jax.endpoints import proximity
+import dpax
+from dpax.endpoints import proximity
 
 """
 Capsules can be described by their endpoints a, b,
@@ -99,8 +99,8 @@ import jax
 import jax.numpy as jnp 
 from jax import jit, grad, vmap 
 
-import diffpills_jax
-from diffpills_jax.mrp import proximityMRP
+import dpax
+from dpax.mrp import proximityMRP
 
 """
 Each capsule is described with:

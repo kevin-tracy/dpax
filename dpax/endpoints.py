@@ -5,7 +5,7 @@ from jax import custom_jvp
 from jax import jvp 
 import jax.numpy as jnp 
 
-from diffpills_jax.qp_utils import *
+from dpax.qp_utils import *
 
 @custom_jvp
 def proximity(R1,a1,b1,R2,a2,b2):
