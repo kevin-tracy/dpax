@@ -1,8 +1,11 @@
 # dpax
-Differentiable collision detection for capsules in JAX that is fully compatible with `jit`, `grad`, and `vmap`. This is based on the following [arXiv paper](https://arxiv.org/abs/2207.00202), and existing Julia package [DiffPills.jl](https://github.com/kevin-tracy/DiffPills.jl).
+Differentiable collision detection for capsules or polygones in JAX that is fully compatible with `jit`, `grad`, and `vmap`. 
 
-For general purpose differentiable collision detection between convex primitives, see this follow on-work [arXiv paper](https://arxiv.org/abs/2207.00669), and Julia package [DifferentiableCollisions.jl](https://github.com/kevin-tracy/DifferentiableCollisions.jl).
+The capsule collision detection is based on the following [arXiv paper](https://arxiv.org/abs/2207.00202), and existing Julia package [DiffPills.jl](https://github.com/kevin-tracy/DiffPills.jl).
 
+The polytope collision detection is based on the following [arXiv paper](https://arxiv.org/abs/2207.00669), and existing Julia package [DifferentiableCollisions.jl](https://github.com/kevin-tracy/DifferentiableCollisions.jl).
+
+For general purpose differentiable collision detection between a variety of convex primitives, see the [second paper](https://arxiv.org/abs/2207.00669) and [DifferentiableCollisions.jl](https://github.com/kevin-tracy/DifferentiableCollisions.jl).  The framework in that package can handle interactions between any pair of 5 different convex primitives. In this repo, only functionality for polytopes has been ported to python/JAX.
 
 ## Installation
 
@@ -18,7 +21,7 @@ Alternatively, to install from source:
 $ python setup.py install
 ```
 
-## Basic Usage 
+## Basic Usage (Capsules)
 This package allows for proximity calculations between capsules that can be described in one of two different ways. The first way parametrizes the capsule by its endpoints and radius, and the second way parametrizes the capsule with a position and attitude (modified rodrigues parameter). 
 
 ### Endpoints
@@ -160,4 +163,70 @@ batch_proximity_grad = jax.vmap(proximityMRP_grad, in_axes = (0,0,0,0,0,0,0,0))
 
 (g_R1s, g_L1s, g_r1s, g_p1s,
  g_R2s, g_L2s, g_r2s, g_p2s) = batch_proximity_grad(R1s, L1s, r1s, p1s, R2s, L2s, r2s, p2s)
+```
+
+## Basic Usage (Polytopes) 
+
+
+```python 
+import jax
+import jax.numpy as jnp 
+from jax import jit, grad, vmap 
+from jax.test_util import check_grads
+
+import dpax
+from dpax.mrp import dcm_from_mrp
+from dpax.polytopes import polytope_proximity
+
+ 
+# rectangular prism in Ax<=b form (halfspace form)
+def create_rect_prism(length, width, height):
+
+  A = jnp.array([
+      [1,0,0.],
+      [0,1,0.],
+      [0,0,1.],
+      [-1,0,0.],
+      [0,-1,0.],
+      [0,0,-1.]
+  ])
+
+  cs = jnp.array([
+      [length/2,0,0.],
+      [0,width/2,0.],
+      [0.,0,height/2],
+      [-length/2,0,0.],
+      [0,-width/2,0.],
+      [0.,0,-height/2]
+  ])
+
+  # b[i] = dot(A[i,:], b[i,:]) 
+  b = jax.vmap(jnp.dot, in_axes = (0,0))(A, cs)
+
+  return A, b 
+
+# create polytopes 
+A1, b1 = create_rect_prism(1,2,3)
+A2, b2 = create_rect_prism(2,4,3)
+
+# position and attitude for each polytope 
+r1 = jnp.array([1,3,-2.])
+p1 = jnp.array([.1,.3,.4])
+Q1 = dcm_from_mrp(p1)
+
+r2 = jnp.array([-1,0.1,2.])
+p2 = jnp.array([-.3,.3,-.2])
+Q2 = dcm_from_mrp(p2)
+
+# calculate proximity (alpha <= 1 means collision) 
+alpha = polytope_proximity(A1,b1,r1,Q1,A2,b2,r2,Q2)
+
+print("alpha: ", alpha)
+
+# calculate all the gradients 
+grad_f = jit(grad(polytope_proximity, argnums = (0,1,2,3,4,5,6,7)))
+grads = grad_f(A1,b1,r1,Q1,A2,b2,r2,Q2)
+
+# check gradients 
+check_grads(polytope_proximity,  (A1,b1,r1,Q1,A2,b2,r2,Q2), order=1, atol = 2e-1)
 ```
