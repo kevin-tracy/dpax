@@ -1,5 +1,5 @@
 # dpax
-Differentiable collision detection for capsules or polygones in JAX that is fully compatible with `jit`, `grad`, and `vmap`. 
+Differentiable collision detection for capsules or polygons in JAX that is fully compatible with `jit`, `grad`, and `vmap`. 
 
 The capsule collision detection is based on the following [arXiv paper](https://arxiv.org/abs/2207.00202), and existing Julia package [DiffPills.jl](https://github.com/kevin-tracy/DiffPills.jl).
 
