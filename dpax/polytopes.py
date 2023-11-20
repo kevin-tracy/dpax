@@ -38,8 +38,8 @@ def problem_matrices(A1,b1,r1,Q1,A2,b2,r2,Q2):
   c = jnp.array([0,0,0,1.])
 
   G = jnp.vstack((
-      jnp.hstack((A1 @ Q1.T, -jnp.reshape(b1,(6,1)) )),
-      jnp.hstack((A2 @ Q2.T, -jnp.reshape(b2,(6,1)) ))
+      jnp.hstack((A1 @ Q1.T, -jnp.reshape(b1,(-1,1)) )),
+      jnp.hstack((A2 @ Q2.T, -jnp.reshape(b2,(-1,1)) ))
   ))
   h = jnp.concatenate((
       A1 @ Q1.T @ r1, 
