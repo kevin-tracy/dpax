@@ -50,8 +50,14 @@ def pdip_step(inputs):
 
   # solve for affine step 
   invSZ = jnp.diag(z / s)
-  # TODO: figure out if we really need to regularize here
-  F = jax.scipy.linalg.cho_factor(G.T @ invSZ @ G)
+
+  GSG = G.T @ invSZ @ G
+  max_elt = jnp.max(jnp.abs(GSG))
+  # Regularize since GSG may be non-positive-semidefinite due to numerical
+  # issues
+  GSG = GSG + 1e-8 * max_elt * jnp.eye(4)
+  F = jax.scipy.linalg.cho_factor(GSG)
+
   dx_a = jax.scipy.linalg.cho_solve(F, -r1 + G.T @ invSZ @ (-r3 + (r2 / z)))
   ds_a = -(G @ dx_a + r3 )
   dz_a = -(r2 + (z * ds_a)) / s 
